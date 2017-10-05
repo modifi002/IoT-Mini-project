@@ -88,7 +88,6 @@ void setup(void)
 void loop(void) 
 {
   int16_t x, y, z; //กำหนดตัวแปร x y z ให้รับค่าเป็นจำนวนเต็ม 16 บิต
-  sw_st = digitalRead(D4);
   x = ads.readADC_SingleEnded(0); //รับค่า แกน X จาก ADS1015 ที่ A0
   y = ads.readADC_SingleEnded(1); //รับค่า แกน Y จาก ADS1015 ที่ A1
   z = ads.readADC_SingleEnded(2); //รับค่า แกน Z จาก ADS1015 ที่ A2
@@ -110,16 +109,17 @@ void loop(void)
   Serial.print("count3 = ");
   Serial.println(count3);*/
   
-  if((x > 640 || x < 450) && n == 2 && n2 == 0 || n==0 || (z > 645 || z < 450) && n == 2 && n2 == 0 || n == 0) {
+  if((x > 640 || x < 450) && n == 2 && n2 == 0 || (z > 645 || z < 450) && n == 2 && n2 == 0) {
+    //เงื่อนไข คือ ถ้าค่าที่รับมาจากแกน X หรือ Z มีค่ามากกว่า 640 หรือน้อยกว่า 450 และ n = 2 และ n2 = 0
       digitalWrite(Buzzer , LOW);
-      n = 0;
-      count3 = count3 + 1000; // 1000 = 1 วินาที
+      n = 0; //ให้ n = 0 เพื่อให้เข้าเงื่อนไขถัดไป
+      count3 = count3 + 1000; // 1000 = 1 วินาที 
       sw_st = digitalRead(D4); //รับค่าจากปุ่ม 
       if(sw_st == LOW){//ถ้ามีการกดปุ่ม
         digitalWrite(Buzzer , HIGH); //ให้เสียงดับ
         digitalWrite(led_AML , LOW); //ให้ไฟดับ
         n = 3; //ให้ n=3 เพื่อไม่ให้เข้าเงื่อนไขใดๆ
-        count3 = 0; 
+        count3 = 0; //รีเซ็ตค่า count3 ให้เป็นค่าเริ่มต้น 
       }
     delay(1000);
     }
@@ -127,11 +127,14 @@ void loop(void)
     x = ads.readADC_SingleEnded(0);  // อ่านค่าจากขาอะนาล็อก A0
     z = ads.readADC_SingleEnded(2); // อ่านค่าจากขาอะนาล็อก A2
     if((x > 640 || x < 450)&& n == 0 && count3 == 10000 || (z > 645 || z < 450) && n == 0 && count3 == 10000 || count == 60000 ){
+      //เงื่อนไข คือ ถ้าค่าที่รับมาจากแกน X หรือ Z มีค่ามากกว่า 640 หรือน้อยกว่า 450 และ n=0 และ count3 = 10000 หรือ count = 60000
+      //count3 = 10000 คือ เมื่อเวลาผ่านไป 10 วินาที
+      //count = 60000 คือ เมื่อเวลาผ่านไป 1 นาที
       digitalWrite(Buzzer , HIGH); //ให้เสียงดับ
       digitalWrite(led_AML , HIGH); //ให้ไฟคิด
       Serial.println("Sent to Line1");
       Line_Notify(message1); // ส่งข้อความที่1 ไปที่ Line
-      n = 1; //ให้ n = 1 เพื่อไม่ให้เข้าเงื่อนไขนี้
+      n = 1; //ให้ n = 1 เพื่อไม่ให้เข้าเงื่อนไขนี้ และฟังก์ชันต่อไป
       //Serial.println(n);  
       delay(1000);
       count = 0;
@@ -141,6 +144,7 @@ void loop(void)
     x = ads.readADC_SingleEnded(0);  // อ่านค่าจากขาอะนาล็อก A0
     z = ads.readADC_SingleEnded(2); // อ่านค่าจากขาอะนาล็อก A2
     if((x > 640 || x < 450)&& n == 1 || (z > 645 || z < 450) && n == 1){
+      //เงื่อนไข คือ ถ้าค่าที่รับมาจากแกน X หรือ Z มีค่ามากกว่า 640 หรือน้อยกว่า 450 และ n=1
       digitalWrite(Buzzer , LOW);
       delay(400);
       digitalWrite(Buzzer , HIGH);
@@ -165,7 +169,7 @@ void loop(void)
       if(sw_st == LOW){ //รับค่าจากปุ่ม 
         count2 = count2 + 1;
         Serial.println(count2);
-        if(count2 == 3){  //หยุดการประมวณผลค่าที่รับมา
+        if(count2 == 3){  //หยุดการประมวลผลค่าที่รับมา
           digitalWrite(Buzzer , LOW); delay(50);
           digitalWrite(Buzzer , HIGH); delay(50);
           digitalWrite(Buzzer , LOW); delay(50);
@@ -173,7 +177,7 @@ void loop(void)
           n2 = 3;
           count2 = 3;
         }
-        if(count2 == 6){ //กลับมาประมวณผลปกติ
+        if(count2 == 6){ //กลับมาประมวลผลปกติ
           digitalWrite(Buzzer , LOW); delay(100);
           digitalWrite(Buzzer , HIGH); delay(50);
           digitalWrite(Buzzer , LOW); delay(50);
